@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: taller_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: taller_db
+      MYSQL_USER: taller_user
+      MYSQL_PASSWORD: taller_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - taller_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taller_backend
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: taller_db
+      DB_USERNAME: taller_user
+      DB_PASSWORD: taller_password
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: base64:${APP_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /app/vendor
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - taller_network
+    command: sh -c "php artisan migrate --seed && php artisan serve --host=0.0.0.0"
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taller_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - taller_network
+    command: npm start
+
+volumes:
+  mysql_data:
+
+networks:
+  taller_network:
+    driver: bridge
