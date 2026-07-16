@@ -1,0 +1,34 @@
+# Backend
+/backend/node_modules
+/backend/.env
+/backend/.env.local
+/backend/storage/logs/*
+/backend/storage/app/uploads/*
+/backend/bootstrap/cache/*
+/backend/vendor/
+/backend/.DS_Store
+/backend/*.log
+
+# Frontend
+/frontend/node_modules
+/frontend/.env
+/frontend/.env.local
+/frontend/dist
+/frontend/build
+/frontend/.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# OS
+Thumbs.db
+.DS_Store
